@@ -74,30 +74,37 @@ namespace Plugin.InAppBilling
             tcsConnect?.TrySetCanceled();
             tcsConnect = new TaskCompletionSource<bool>();
 
-            using var _ = cancellationToken.Register(() => tcsConnect.TrySetCanceled());
+            using var _ = cancellationToken.Register(OnCallback);
             BillingClientBuilder = NewBuilder(Context);
             BillingClientBuilder.SetListener(OnPurchasesUpdated);
-            if (enablePendingPurchases)
-                BillingClient = BillingClientBuilder.EnablePendingPurchases().Build();
+            if(enablePendingPurchases)
+            {
+                var pendingParams = PendingPurchasesParams.NewBuilder().EnablePrepaidPlans().Build();
+                BillingClient = BillingClientBuilder.EnablePendingPurchases(pendingParams).Build();
+            }
             else
+            {
                 BillingClient = BillingClientBuilder.Build();
+            }
 
             BillingClient.StartConnection(OnSetupFinished, OnDisconnected);
             // TODO: stop trying
 
             return tcsConnect.Task;
+        }
 
-            void OnSetupFinished(BillingResult billingResult)
-            {
-                Console.WriteLine($"Billing Setup Finished : {billingResult.ResponseCode} - {billingResult.DebugMessage}");
-                IsConnected = billingResult.ResponseCode == BillingResponseCode.Ok;
-                tcsConnect?.TrySetResult(IsConnected);
-            }
+        void OnCallback() => tcsConnect.TrySetCanceled();
 
-            void OnDisconnected()
-            {
-                IsConnected = false;
-            }
+        void OnSetupFinished(BillingResult billingResult)
+        {
+            Console.WriteLine($"Billing Setup Finished : {billingResult.ResponseCode} - {billingResult.DebugMessage}");
+            IsConnected = billingResult.ResponseCode == BillingResponseCode.Ok;
+            tcsConnect?.TrySetResult(IsConnected);
+        }
+
+        void OnDisconnected()
+        {
+            IsConnected = false;
         }
 
         public void OnPurchasesUpdated(BillingResult billingResult, IList<Android.BillingClient.Api.Purchase> purchases)
