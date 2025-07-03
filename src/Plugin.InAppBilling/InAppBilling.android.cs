@@ -31,7 +31,7 @@ namespace Plugin.InAppBilling
         static Activity Activity =>
             Platform.CurrentActivity ?? throw new NullReferenceException("Current Activity is null, ensure that the MainActivity.cs file is configuring .NET MAUI in your source code so the In App Billing can use it.");
 
-        static Context Context => Application.Context;
+        static Context Context => Android.App.Application.Context;
 
         /// <summary>
         /// Default Constructor for In App Billing Implementation on Android
@@ -225,12 +225,14 @@ namespace Plugin.InAppBilling
                 _ => ProductType.Subs
             };
 
-            var historyParams = QueryPurchaseHistoryParams.NewBuilder().SetProductType(skuType).Build();
-            //TODO: Binding needs updated
-            var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(historyParams);
+            //var historyParams = QueryPurchaseHistoryParams.NewBuilder().SetProductType(skuType).Build();
+            ////TODO: Binding needs updated
+            //var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(historyParams);
+            //return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? new List<InAppBillingPurchase>();
 
-
-            return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? new List<InAppBillingPurchase>();
+            var queryParams = QueryPurchasesParams.NewBuilder().SetProductType(skuType).Build();
+            var purchasesResult = await BillingClient.QueryPurchasesAsync(queryParams);
+            return purchasesResult.Purchases.Select(x => x.ToIABPurchase()) ?? [];
         }
 
         /// <summary>
