@@ -225,12 +225,14 @@ namespace Plugin.InAppBilling
                 _ => ProductType.Subs
             };
 
-            var historyParams = QueryPurchaseHistoryParams.NewBuilder().SetProductType(skuType).Build();
-            //TODO: Binding needs updated
-            var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(historyParams);
+            //var historyParams = QueryPurchaseHistoryParams.NewBuilder().SetProductType(skuType).Build();
+            ////TODO: Binding needs updated
+            //var purchasesResult = await BillingClient.QueryPurchaseHistoryAsync(historyParams);
+            //return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? new List<InAppBillingPurchase>();
 
-
-            return purchasesResult?.PurchaseHistoryRecords?.Select(p => p.ToIABPurchase()) ?? new List<InAppBillingPurchase>();
+            var queryParams = QueryPurchasesParams.NewBuilder().SetProductType(skuType).Build();
+            var purchasesResult = await BillingClient.QueryPurchasesAsync(queryParams);
+            return purchasesResult.Purchases.Select(x => x.ToIABPurchase()) ?? [];
         }
 
         /// <summary>
