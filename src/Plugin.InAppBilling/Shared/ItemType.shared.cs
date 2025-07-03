@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,14 +26,15 @@ namespace Plugin.InAppBilling
     }
 
     /// <summary>
-    /// Subscription proration mode
+    /// Subscription replacement mode
     /// </summary>
-    public enum SubscriptionProrationMode
+    public enum SubscriptionReplacementMode
     {
-        ImmediateWithTimeProration = 1,
-        ImmediateAndChargeProratedPrice = 2,
-        ImmediateWithoutProration = 3,
-        Deferred = 4,
-        ImmediateAndChargeFullPrice = 5
+        UnknownReplacementMode = 0,
+        WithTimeProration = 1,
+        ChargeProratedPrice = 2,
+        WithoutProration = 3,
+        ChargeFullPrice = 5,
+        Deferred = 6
     }
 }

@@ -99,10 +99,10 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription (can not be null)</param>
-        /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
+        /// <param name="replacementMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
         /// <returns>Purchase details</returns>
         /// <exception cref="InAppBillingPurchaseException">If an error occurs during processing</exception>
-        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken = default);
+        Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionReplacementMode replacementMode = SubscriptionReplacementMode.WithTimeProration, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Consume a purchase with a purchase token.

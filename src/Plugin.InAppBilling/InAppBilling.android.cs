@@ -238,21 +238,20 @@ namespace Plugin.InAppBilling
         /// </summary>
         /// <param name="newProductId">Sku or ID of product that will replace the old one</param>
         /// <param name="purchaseTokenOfOriginalSubscription">Purchase token of original subscription</param>
-        /// <param name="prorationMode">Proration mode (1 - ImmediateWithTimeProration, 2 - ImmediateAndChargeProratedPrice, 3 - ImmediateWithoutProration, 4 - Deferred)</param>
+        /// <param name="replacementMode">Subscription replacement mode (1 - WithTimeProration, 2 - ChargeProratedPrice, 3 - WithoutProration, 5 - ChargeFullPrice, 6 - Deferred)</param>
         /// <returns>Purchase details</returns>
-        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode = SubscriptionProrationMode.ImmediateWithTimeProration, CancellationToken cancellationToken = default)
+        public override async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionReplacementMode replacementMode = SubscriptionReplacementMode.WithTimeProration, CancellationToken cancellationToken = default)
         {
-
             // If we have a current task and it is not completed then return null.
             // you can't try to purchase twice.
             AssertPurchaseTransactionReady();
 
-            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, prorationMode, cancellationToken);
+            var purchase = await UpgradePurchasedSubscriptionInternalAsync(newProductId, purchaseTokenOfOriginalSubscription, replacementMode, cancellationToken);
 
             return purchase;
         }
 
-        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionProrationMode prorationMode, CancellationToken cancellationToken)
+        async Task<InAppBillingPurchase> UpgradePurchasedSubscriptionInternalAsync(string newProductId, string purchaseTokenOfOriginalSubscription, SubscriptionReplacementMode replacementMode, CancellationToken cancellationToken)
         {
             var itemType = ProductType.Subs;
 
@@ -269,15 +268,15 @@ namespace Plugin.InAppBilling
 
             var skuDetails = skuDetailsResult.ProductDetails.FirstOrDefault() ?? throw new ArgumentException($"{newProductId} does not exist");
 
-            //1 - BillingFlowParams.ProrationMode.ImmediateWithTimeProration
-            //2 - BillingFlowParams.ProrationMode.ImmediateAndChargeProratedPrice
-            //3 - BillingFlowParams.ProrationMode.ImmediateWithoutProration
-            //4 - BillingFlowParams.ProrationMode.Deferred
-            //5 - BillingFlowParams.ProrationMode.ImmediateAndChargeFullPrice
+            //1 - BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WithTimeProration
+            //2 - BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.ChargeProratedPrice
+            //3 - BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.WithoutProration
+            //5 - BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.ChargeFullPrice
+            //6 - BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.Deferred
 
             var updateParams = BillingFlowParams.SubscriptionUpdateParams.NewBuilder()
                 .SetOldPurchaseToken(purchaseTokenOfOriginalSubscription)
-                .SetSubscriptionReplacementMode((int)prorationMode)
+                .SetSubscriptionReplacementMode((int)replacementMode)
                 .Build();
 
             var t = skuDetails.GetSubscriptionOfferDetails()?.FirstOrDefault()?.OfferToken;
